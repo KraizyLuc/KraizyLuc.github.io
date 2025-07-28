@@ -89,6 +89,7 @@ pageviews:
 #     dark — Use the dark color scheme
 #
 theme_mode: # [light | dark]
+background_image: /assets/img/background.jpg
 
 # The CDN endpoint for media resources.
 # Notice that once it is assigned, the CDN url
