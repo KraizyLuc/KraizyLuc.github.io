@@ -1,6 +1,6 @@
 ---
 title: First Post
-date: 28/7/2025 17:47 +0700
+date: 2025/07/28 17:47 +0700
 tags: [misc]
 categories: [stuffs]
 author: KraizyLuc
