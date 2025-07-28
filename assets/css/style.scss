@@ -1,6 +1,7 @@
-.sidebar {
-  background: url('/assets/img/background.jpg') no-repeat center center;
+body {
+  background-image: url('/assets/img/background.jpg');
   background-size: cover;
-  backdrop-filter: blur(4px);
-  background-color: rgba(0, 0, 0, 0.6);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
