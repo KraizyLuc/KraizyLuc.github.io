@@ -1,7 +1,12 @@
 ---
 ---
 
-@import 'main';
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
 
 /* append your custom style below */
 pre {
@@ -56,13 +61,4 @@ pre {
   width: 100%;
   height: 100%;
   z-index: -1;
-}
-
-#topbar-wrapper {
-  border-radius: 0 0 0.625rem 0.625rem;
-}
-
-#tail-wrapper > footer {
-  padding: 0 1.75rem;
-  border-radius: 0.625rem 0.625rem 0 0;
 }
