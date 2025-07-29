@@ -7,7 +7,7 @@ categories: [Labs]
 author: KraizyLuc
 math: true
 img_path: /assets/img/NetworkWithEve
-image: logopost.jpg
+image: /assets/img/NetworkWithEve/logopost.jpg
 
 ---
 
@@ -28,33 +28,33 @@ Trong bài viết này, mình sẽ bắt đầu tìm hiểu và từng bước t
 
 ## Ý tưởng cho mô hình xây dựng
 
-![model](model.png)
+![alt text](/assets/img/NetworkWithEve/model.png)
 
 # Phần 1: Cài đặt EVE-NG và một số thành phần cần thiết
 
 ## Step 1: Tải và cài đặt EVE-NG
 Tải và cài đặt EVE-NG.
 
-![picture1](Picture1.1.png)
+![picture1](/assets/img/NetworkWithEve/Picture1.1.png)
 
 Mình sẽ sử dụng vmware là nơi để triển khai EVE-NG.
 
-![picture2](Picture1.2.png)
+![picture2](/assets/img/NetworkWithEve/Picture1.2.png)
 
 Thông số cơ bản cho việc mô phỏng lần này.
 
-![picture3](Picture1.3.png)
+![picture3](/assets/img/NetworkWithEve/Picture1.3.png)
 
 Sau khi khởi động EVE-NG, tiến hành setup server và cấp ip cho server
 
-![picture4](Picture1.4.png)
+![picture4](/assets/img/NetworkWithEve/Picture1.4.png)
 
-![picture5](Picture1.5.png)
+![picture5](/assets/img/NetworkWithEve/Picture1.5.png)
 
 Các bước thiết lập đã xong tiến hành truy cập thông qua web browser bằng ip đã cấp
 
-![picture6](Picture1.6.png)
+![picture6](/assets/img/NetworkWithEve/Picture1.6.png)
 
 Để có thể tiếp tục lab chúng ta sẽ cần thêm vào một số thiết bị ảo tương ứng với từng Node 
 
-![picture7](Picture1.7.png)
+![picture7](/assets/img/NetworkWithEve/Picture1.7.png)
