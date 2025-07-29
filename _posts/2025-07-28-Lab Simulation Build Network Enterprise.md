@@ -28,7 +28,7 @@ Trong bài viết này, mình sẽ bắt đầu tìm hiểu và từng bước t
 
 ## Ý tưởng cho mô hình xây dựng
 
-![model](model.png)
+![alt text](model.png)
 
 # Phần 1: Cài đặt EVE-NG và một số thành phần cần thiết
 
