@@ -4,7 +4,7 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-> ## 👦 About Me
+## 👦 About Me
 
 Hello, I'm KraizyLuc, a final-year student at FPT University. My major is information assurance, and I am interested in Blue Team. I'm also an academic member in [FPT CanTho-Security Club](https://www.facebook.com/clbfsecfptcantho).
 
