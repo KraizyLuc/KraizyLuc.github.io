@@ -7,7 +7,7 @@ categories: [Labs]
 author: KraizyLuc
 math: true
 img_path: /assets/img/NetworkWithEve
-image: /assets/img/NetworkWithEve/logopost.jpg
+image: logopost.jpg
 
 ---
 
