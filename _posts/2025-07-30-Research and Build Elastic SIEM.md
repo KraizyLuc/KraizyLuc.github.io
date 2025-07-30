@@ -5,6 +5,7 @@ tags: [SIEM, Elastic, ELK, Research, Building]
 categories: [Personal Project]
 author: KraizyLuc
 math: true
+image: https://cyberopex.ch/wp-content/uploads/2024/04/Elastic_NV_logo.svg-e1714478277482-1024x379.png
 ---
 
 
