@@ -6,15 +6,14 @@ tags: [Network]
 categories: [Labs]
 author: KraizyLuc
 math: true
-img_path: /assets/img/NetworkWithEve
-image: logopost.jpg
+image: /assets/img/NetworkWithEve/logopost.jpg
 
 ---
 
-# Mở đầu:
+## Mở đầu:
 Trong bài viết này, mình sẽ bắt đầu tìm hiểu và từng bước triển khai mô hình mạng hoàn chỉnh dành cho doanh nghiệp vừa và nhỏ với Firewall, VLAN, Domain Controller, Web Server... bằng cách sử dụng EVE-NG (Công cụ mô phỏng ảo hóa các thiết bị).
 
-# Mục tiêu hệ thống
+## Mục tiêu hệ thống
 > Do tài nguyên máy không đủ nên mình sẽ sử dụng các thiết bị hơi cũ nhưng vẫn đảm bảo đầy đủ tính năng để có thể hoạt động một cách ổn định.
 1. Phân vùng mạng rõ ràng: DMZ, Internal, User, Internet
 2. Triển khai dịch vụ:
@@ -30,9 +29,9 @@ Trong bài viết này, mình sẽ bắt đầu tìm hiểu và từng bước t
 
 ![alt text](/assets/img/NetworkWithEve/model.png)
 
-# Phần 1: Cài đặt EVE-NG và một số thành phần cần thiết
+## Phần 1: Cài đặt EVE-NG và một số thành phần cần thiết
 
-## Step 1: Tải và cài đặt EVE-NG
+### Step 1: Tải và cài đặt EVE-NG
 Tải và cài đặt EVE-NG.
 
 ![picture1](/assets/img/NetworkWithEve/Picture1.1.png)
@@ -58,3 +57,47 @@ Các bước thiết lập đã xong tiến hành truy cập thông qua web brow
 Để có thể tiếp tục lab chúng ta sẽ cần thêm vào một số thiết bị ảo tương ứng với từng Node 
 
 ![picture7](/assets/img/NetworkWithEve/Picture1.7.png)
+
+
+## Step 2: Cài đặt một số công cụ hổ trợ và thêm các thiết bị vào eve-ng
+Tải và cài đặt Windows client side( Có thể giúp kết nối tới giao diện của các thiết bị và có thể kiểm tra bắt gói tin)
+
+![image](/assets/img/NetworkWithEve/Picture2.1.png)
+
+Tải và cài đặt Winscp: có thể dễ dàng trong việc thêm các image thiết bị vào trong eve-ng
+
+![image](/assets/img/NetworkWithEve/Picture2.2.png)
+
+Kết nối tới server và thêm router và switch vào
+
+![image](/assets/img/NetworkWithEve/Picture2.3.png)
+
+![image](/assets/img/NetworkWithEve/Picture2.4.png)
+
+![image](/assets/img/NetworkWithEve/Picture2.5.png)
+
+Sửa lại quyền sở hữu và phân quyền cho toàn bộ file và thư mục chứa image máy ảo trong EVE-NG. Đảm bảo các file thuộc về đúng user chạy web GUI của EVE-NG để có thể tránh lỗi không khởi động được node.
+
+![image](/assets/img/NetworkWithEve/Picture2.6.png)
+
+Thêm máy windows vào
+
+![image](/assets/img/NetworkWithEve/Picture2.7.png)
+
+Thêm máy windows server 2012 và cài đặt dịch vụ active directory domain, dhcp và dns
+
+![image](/assets/img/NetworkWithEve/Picture2.8.png)
+
+Thêm một linux server để làm web server( apache 2)
+
+![image](/assets/img/NetworkWithEve/Picture2.9.png)
+
+![image](/assets/img/NetworkWithEve/Picture2.10.png)
+
+Thêm và cài đặt firewall pfsense  và fortigate
+
+![image](/assets/img/NetworkWithEve/Picture2.11.png)
+
+![image](/assets/img/NetworkWithEve/Picture2.12.png)
+
+![image](/assets/img/NetworkWithEve/Picture2.13.png)
