@@ -1,6 +1,10 @@
 ---
-title: Elastic SIEM
-
+title: Dự án tìm hiểu và xây dựng Elastic SIEM (2024)
+date: 2025/07/30 18:07 +0700
+tags: [SIEM, Elastic, ELK, Research, Building]
+categories: [Personal Project]
+author: KraizyLuc
+math: true
 ---
 
 
