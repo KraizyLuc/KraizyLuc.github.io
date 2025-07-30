@@ -1,7 +1,18 @@
 {% assign img_base = page.img_path | default: "/assets/img" %}
 
-{% comment %} Xử lý tự động thêm base path cho ảnh {% endcomment %}
-{% assign content = content 
-  | replace: '![](', '![](' | replace: '](', '](' 
-  | replace: '](/assets/img/', '](' 
+{% comment %} Xử lý CẢ Markdown và HTML images {% endcomment %}
+{% assign processed_content = content 
+  | replace: 'src="/', 'src="' 
+  | replace: 'src="', 'src="' 
+  | replace: '](/', '](' 
+  | replace: '](', '](' 
+  | replace: 'assets/img/', '' 
+  | replace: 'src="', 'src="' | append: img_base | append: '/' 
   | replace: '](', '](' | append: img_base | append: '/' %}
+
+{{ processed_content }}
+
+{% assign processed_content = content 
+  | replace: 'src="', 'src="' | append: img_base | append: '/' 
+  | replace: '](', '](' | append: img_base | append: '/' 
+  | replace: '"', '" | relative_url "' %}
