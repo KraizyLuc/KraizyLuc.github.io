@@ -1,15 +1,8 @@
-{% assign img_base = page.img_path | default: "/assets/img" | relative_url %}
+{% assign img_base = page.img_path | default: site.img_path | relative_url %}
 
-{% comment %} Xử lý cả Markdown và HTML {% endcomment %}
 {% assign processed_content = content 
   | replace: 'src="/', 'src="' 
   | replace: 'src="', 'src="' | append: img_base | append: '/' 
   | replace: '](/', '](' 
-  | replace: '](', '](' | append: img_base | append: '/' %}
-
-{{ processed_content }}
-
-{% assign processed_content = content 
-  | replace: 'src="', 'src="' | append: img_base | append: '/' 
   | replace: '](', '](' | append: img_base | append: '/' 
-  | replace: '"', '" | relative_url "' %}
+  | replace: '"//', '"/' %}
