@@ -59,7 +59,7 @@ Các bước thiết lập đã xong tiến hành truy cập thông qua web brow
 ![picture7](/assets/img/NetworkWithEve/Picture1.7.png)
 
 
-## Step 2: Cài đặt một số công cụ hổ trợ và thêm các thiết bị vào eve-ng
+### Step 2: Cài đặt một số công cụ hổ trợ và thêm các thiết bị vào eve-ng
 Tải và cài đặt Windows client side( Có thể giúp kết nối tới giao diện của các thiết bị và có thể kiểm tra bắt gói tin)
 
 ![image](/assets/img/NetworkWithEve/Picture2.1.png)
@@ -101,3 +101,127 @@ Thêm và cài đặt firewall pfsense  và fortigate
 ![image](/assets/img/NetworkWithEve/Picture2.12.png)
 
 ![image](/assets/img/NetworkWithEve/Picture2.13.png)
+
+## Phần 2: Config kết nối với nhau
+
+### Step 1: Firewall
+
+Kiểm soát truy cập các vùng bằng Firewall
+
+![image](/assets/img/NetworkWithEve/Picture14.png)
+
+Trong lab này sẽ sử dụng Firewall fortigate như là một gateway để quản lý các lưu lượng vào và ra của mạng doanh nghiệp
+ 
+ ==> Và Firewall này cũng đóng vai trò như một router luôn.
+
+![image](/assets/img/NetworkWithEve/Picture15.png)
+
+Config interface port1 để có thể kết nối tới internet: Chỉnh về mode static để tự set ip nằm trong mạng thật của máy >> 192.168.0.110
+
+![image](/assets/img/NetworkWithEve/Picture16.png)
+
+Vào giao diện của Fortigate
+
+![image](/assets/img/NetworkWithEve/Picture17.png)
+
+ Điều chỉnh port1 là Wan cổng mà đi ra ngoài internet 
+
+![image](/assets/img/NetworkWithEve/Picture18.png)
+
+Port2 sẽ là của vùng dmz
+
+![image](/assets/img/NetworkWithEve/Picture19.png)
+
+Tiếp tục đặt port3 là lan và cấp ip là 10.10.20.1/255.255.255.0 và bật dhcp server để tự cấp ip cho máy
+
+![image](/assets/img/NetworkWithEve/Picture20.png)
+
+Đặt một static route như là đường đi cho mạng internal ra ngoài internet với default gateway là của mạng isp và sử dụng trên port1 wan
+
+![image](/assets/img/NetworkWithEve/Picture21.png)
+
+Tạo một policy và cài đặt NAT cho vùng User để user có thể truy cập ra internet bên ngoài
+
+![image](/assets/img/NetworkWithEve/Picture22.png)
+
+Tạo các vlan 10,20 để các máy thông với nhau 
+
+![image](/assets/img/NetworkWithEve/Picture23.png)
+
+Tạo một static route để đi ra mạng internet
+
+![image](/assets/img/NetworkWithEve/Picture24.png)
+
+- Tạo các policy bao gồm:
+    - Máy tính user kết nối được internet
+    - Máy tính user và domain controller thông lan với nhau để user có thể join domain
+    - Nat webserver ra internet để các máy user có thể kết nối tới
+    - Vùng internal network có thể kết nối internet
+
+![image](/assets/img/NetworkWithEve/Picture25.png)
+
+### Step 2: Switch
+
+Tạo đường trunk và chuyển mode cho cổng e0/0 của switch user
+
+![image](/assets/img/NetworkWithEve/Picture26.png)
+
+Config cổng e0/1 cho phép truy cập vlan10
+
+![image](/assets/img/NetworkWithEve/Picture27.png)
+
+Tương tự như vậy  config bên vlan 20. Tạo đường trunk cho vlan 10,20 và chuyển mode trunk
+
+![image](/assets/img/NetworkWithEve/Picture28.png)
+
+Chuyển cổng e0/1 sang mode access và cho truy cập vlan 20
+
+![image](/assets/img/NetworkWithEve/Picture29.png)
+
+### Step 3: Máy User
+
+Kiểm tra trong máy user xem đã nhận ip và truy cập internet được chưa
+
+![image](/assets/img/NetworkWithEve/Picture30.png)
+
+==> Đã thấy truy cập được internet
+
+Kiểm tra xem có nat thành công web server bằng cách lấy máy user truy cập vào web 
+
+![image](/assets/img/NetworkWithEve/Picture31.png)
+
+==> Kết nối thành công
+
+2 vùng vlan 10,20 đã thông nhau
+
+![image](/assets/img/NetworkWithEve/Picture32.png)
+
+
+### Step 4: Máy windows server
+
+Trên windows server vẫn có thể truy cập ra internet bên ngoài
+
+![image](/assets/img/NetworkWithEve/Picture33.png)
+
+Trên máy windows server tạo 2 tài khoản người dùng cho 2 máy user1 và user2
+
+![image](/assets/img/NetworkWithEve/Picture34.png)
+
+Đăng nhập trên máy user1: Password bắt buộc đổi khi lần đầu đăng nhập
+
+![image](/assets/img/NetworkWithEve/Picture35.png)
+
+![image](/assets/img/NetworkWithEve/Picture36.png)
+
+Đăng nhập vào tài khoản domain thành công và ở windows server có thêm vào một máy tính
+
+![image](/assets/img/NetworkWithEve/Picture37.png)
+
+Tương tự bên máy user2 cũng join vào domain
+
+![image](/assets/img/NetworkWithEve/Picture38.png)
+
+
+## Lời kết
+
+Đây là tất cả bài lab mini của mình khi mô phỏng lại một mô hình mạng của doanh nghiệp vừa và nhỏ. Mình làm bài lab này trong quá trình tìm hiểu các bước đầu tiên để tiến đến gần hơn việc nắm rõ SOC. Nếu có gì sai sót hoặc không đúng logic xin mọi người thông cảm ạ ♥. Hẹn mọi người vào những project sắp tới!!.
