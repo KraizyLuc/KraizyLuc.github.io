@@ -6,7 +6,6 @@ tags: [Network]
 categories: [Labs]
 author: KraizyLuc
 math: true
-img_path: /assets/img/NetworkWithEve
 image: /assets/img/NetworkWithEve/logopost.jpg
 
 ---
@@ -28,7 +27,7 @@ Trong bài viết này, mình sẽ bắt đầu tìm hiểu và từng bước t
 
 ## Ý tưởng cho mô hình xây dựng
 
-![alt text](model.png)
+![alt text](/assets/img/NetworkWithEve/model.png)
 
 # Phần 1: Cài đặt EVE-NG và một số thành phần cần thiết
 
