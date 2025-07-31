@@ -463,4 +463,286 @@ Tiếp theo vào phần rules để bắt đầu tạo rule indicator match. Tro
 Cuối cùng là tùy chỉnh hành động khi rule được thực thi
 ![image](https://hackmd.io/_uploads/HkVYPuPwgg.png)
 
-# Đây cũng là kết thúc cho Project xây dựng mô phỏng về ELK stack/SIEM. Cảm ơn mọi người đã đọc.
+## Phần 3: Thực hành với Elastic SIEM
+
+> Trong phần này về cơ bản thì các thành phần Elastic SIEM không thay đổi nhưng mô hình lab này sẽ thay đổi đôi chút
+
+![image](https://hackmd.io/_uploads/Sk50p9Ovgg.png)
+
+Các thành phần
+Wan: Internet
+LAN: gồm 3 máy
+1) 2 máy để config và là nguồn lấy logs đẩy lên elastic SIEM
+   - 1 máy có hệ thống elastic SIEM được config hoàn chỉnh
+2) 1 tường lửa pfSense: 
+   - Dùng để kiểm soát lưu lượng mạng
+   - Cho mạng lan kết nối ra ngoài internet
+   - Đưa log lên SIEM
+
+### Tích hợp pfSense vào elastic SIEM
+Ở trên Elastic SIEM cài integration pfSense vào Default fleet server policy tạo từ trước
+
+![image](https://hackmd.io/_uploads/B1TDAcOPgg.png)
+
+Cho syslog host chạy trên ==0.0.0.0== để có thể nghe hết các lưu lượng và port là ==9001== 
+![image](https://hackmd.io/_uploads/HJNjC5dvll.png)
+
+Bên pfSense ta sẽ vào phần `status => system logs => setting => tích vào remote logging` 
+![image](https://hackmd.io/_uploads/SJAhCq_Dxe.png)
+![image](https://hackmd.io/_uploads/H1EaAquwgl.png)
+
+> Tuy nhiên nếu cài đặt thông thường thì pfsense sẽ chỉ đảy log metric mà thôi nếu muốn tất cả log bao gồm cả alert thì phải cài thêm integration "Custom Log" và tự parse theo format của pfsense
+
+### Tích hợp sysmon và powershell log vào Elastic SIEM
+
+> Mình đã tích hợp những nguồn log này ở phần trước.
+
+### Use case DDos
+**1. DDOS là gì?**
+
+- Distributed denial-of-service (ddos) là cuộc tấn công từ chối dịch vụ phân tán nhắm đến mục tiêu như là website hoặc các server thông qua việc gây gián đoạn dịch vụ mạng nhằm làm cạn kiệt tài nguyên của ứng dụng. Cách tấn công là gây tràn site bằng những lưu lượng lỗi, khiến cho máy chủ cạn kiệt tài nguyên. 
+![image](https://hackmd.io/_uploads/Hys_-o_Dxe.png)
+
+**2. Tiến hành tấn công ddos vào máy chủ windows 10**
+
+**`Attack:`**
+
+Cài đặt dvwa trên windows 10 để mô phỏng các cuộc tấn công
+![image](https://hackmd.io/_uploads/Sk55ZsdPgg.png)
+
+Bên máy kali cài đặt tool slowloris để có thể dos vào trang dvwa
+![image](https://hackmd.io/_uploads/BJUjZs_vxl.png)
+
+Tiến hành ddos thì ta thấy tool bắt đầu gửi những packet liên tục đến mục tiêu. Khiến cho trang không thể truy cập được
+
+![image](https://hackmd.io/_uploads/B1D2biuwgx.png)
+
+**`Detection:`**
+Qua bên elastic để theo dõi các log được gửi về
+
+![image](https://hackmd.io/_uploads/Skq6WiuDgx.png)
+
+==> Ta có thể thấy các một số lượng lớn log thuộc máy windows gửi về dưới dạng là `endpoint.events.network` và đây cũng là thể loại dataset stream cần theo dõi khi nghi ngờ hệ thống bị ddos. Ở đây ta thấy bị ddos trên trang dvwa theo cổng ==80== và ip nạn nhân là ==192.168.1.100==
+
+![image](https://hackmd.io/_uploads/S17AWsOwxe.png)
+
+Máy ddos có địa chỉ là ==192.168.1.99==
+Tiếp tục để elastic SIEM có thể thông báo về khả năng ddos ta cần tạo rule theo thể loại threshole
+
+- Loại rule này sẽ thiết lập một ngưỡng nhất định nếu log trùng nhau bị lập nhiều lần sẽ kích hoạt rule
+- Trong trường hợp này ta thấy website của hệ thống bị tấn công và tấn công trên cổng 80 nên ta sẽ gán query là ==destination.port: 80==
+- Đặt nếu một ip liên tục gửi trên ==100== lần sẽ kích hoạt rule
+
+![image](https://hackmd.io/_uploads/ryKyzodDex.png)
+![image](https://hackmd.io/_uploads/r1LefiOwle.png)
+![image](https://hackmd.io/_uploads/ry9gMj_wlg.png)
+
+==> Chạy ddos lại lần nữa và thấy hệ thống SIEM cảnh báo
+
+![image](https://hackmd.io/_uploads/ryzbMouvee.png)
+
+**`Response:`**
+Có nhiều cách để khắc phục, giảm thiểu và ngăn chặn ddos
+1. Sử dụng tính năng trên tường lửa pfSense kết hợp với suricata để ngăn chặn, giảm thiểu
+- Cài đặt suricata package
+- Config interfaces cho suricata
+![image](https://hackmd.io/_uploads/Hk9Szsdwge.png)
+
+ 
+- Ở đây sẽ chọn vùng mạng Lan
+ ![image](https://hackmd.io/_uploads/ry_Ifodvgg.png)
+
+
+- Để có thể giảm thiểu và ngăn chặn dos/ddos ta cần chọn block offenders
+ ![image](https://hackmd.io/_uploads/HJaLMo_wxl.png)
+
+
+- Khuyến khích tạo một ip pass list gồm những ip quan trọng như của quản trị để không bị chặn khi cuộc tấn công diễn ra
+ ![image](https://hackmd.io/_uploads/rkIPzouPxg.png)
+
+- Tiếp tục bên mục global settings chọn cài đặt ETopen để có thể ngăn chặn mối đe dọa
+ ![image](https://hackmd.io/_uploads/BkjPGsuDgl.png)
+
+- Tạo rule để có thể phát hiện dos/ddos
+```
+#DOS ATTACK DETECTION
+alert tcp !$HOME_NET any -> $HOME_NET any (flags: S; msg:"Possible SYN DoS"; flow: stateless; threshold: type both, track by_dst, count 1000, seconds 3; sid:10002;rev:1;)
+#alert tcp !$HOME_NET any -> $HOME_NET any (flags: A; msg:"Possible ACK DoS"; flow: stateless; threshold: type both, track by_dst, count 1000, seconds 3; sid:10001;rev:1;)
+alert tcp !$HOME_NET any -> $HOME_NET any (flags: R; msg:"Possible RST DoS"; flow: stateless; threshold: type both, track by_dst, count 1000, seconds 3; sid:10003;rev:1;)
+alert tcp !$HOME_NET any -> $HOME_NET any (flags: F; msg:"Possible FIN DoS"; flow: stateless; threshold: type both, track by_dst, count 1000, seconds 3; sid:10004;rev:1;)
+alert udp !$HOME_NET any -> $HOME_NET any (msg:"Possible UDP DoS"; flow: stateless; threshold: type both, track by_dst, count 1000, seconds 3; sid:10005;rev:1;)
+alert icmp !$HOME_NET any -> $HOME_NET any (msg:"Possible ICMP DoS"; threshold: type both, track by_dst, count 250, seconds 3; sid:10006;rev:1;)
+
+#DDOS ATTACK DETECTION
+alert tcp !$HOME_NET any -> $HOME_NET any (flags: S; msg:"Possible SYN DDoS"; flow: stateless; threshold: type both, track by_dst, count 100000, seconds 10; sid:100002;rev:1;)
+alert tcp !$HOME_NET any -> $HOME_NET any (flags: A; msg:"Possible ACK DDoS"; flow: stateless; threshold: type both, track by_dst, count 100000, seconds 10; sid:100001;rev:1;)
+alert tcp !$HOME_NET any -> $HOME_NET any (flags: R; msg:"Possible RST DDoS"; flow: stateless; threshold: type both, track by_dst, count 100000, seconds 10; sid:100003;rev:1;)
+alert tcp !$HOME_NET any -> $HOME_NET any (flags: F; msg:"Possible FIN DDoS"; flow: stateless; threshold: type both, track by_dst, count 100000, seconds 10; sid:100004;rev:1;)
+alert udp !$HOME_NET any -> $HOME_NET any (msg:"Possible UDP DDoS"; flow: stateless; threshold: type both, track by_dst, count 100000, seconds 10; sid:100005;rev:1;)
+alert icmp !$HOME_NET any -> $HOME_NET any (msg:"Possible ICMP DDoS"; threshold: type both, track by_dst, count 100000, seconds 10; sid:100006;rev:1;)
+
+#PING OF DEATH DETECTION
+alert icmp any any -> $HOME_NET any (msg:"Possible Ping of Death"; dsize: > 10000; sid:555555;rev:1;)
+```
+
+ ![image](https://hackmd.io/_uploads/Skz_fouvxx.png)
+
+- Tấn công ddos lại và ta thấy alert bắt đầu hiện cuộc tấn công từ máy ==192.168.1.99== liên tục từ nhiều port khác nhau đánh vào máy nạn nhận với ==port 80== 
+ ![image](https://hackmd.io/_uploads/HyFjGjODel.png)
+
+==> Sau đó pfSense đã tự block ip tấn công
+ ![image](https://hackmd.io/_uploads/SkXhzidvel.png)
+
+2. sử dụng WAF cho website để chặn ddos
+3. Liên tục theo dõi lưu lượng truy cập vào website và hệ thống
+4. Giới hạn số lượng truy cập
+5. Nếu dịch vụ bị tấn công không quan trọng có thể tắt tạm thời để nhường tài nguyên cho các dịch vụ khác
+6. Chuẩn bị băng thông dự phòng
+7. Sử dụng kỹ thuật anycast network diffusion( sử dụng nhiều điểm cuối phân tán)
+
+### Trigger rule được build sẵn từ Elastic
+
+#### Suspicious Execution via Scheduled Task
+
+5.1 Giới thiệu
+Xác định việc thực thi một chương trình đáng ngờ thông qua các tác vụ được lên lịch bằng cách xem xét dòng quy trình và cách sử dụng dòng lệnh.
+
+5.2 Tags:
+- Domain: Endpoint 
+- OS: Windows 
+- Use Case: Threat Detection 
+- Tactic: Persistence 
+- Tactic: Execution 
+- Data Source: Elastic Defend
+
+5.3 Nguồn log: 
+- winlogbeat-* 
+- logs-endpoint.events.process-* 
+- logs-windows.* 
+
+5.4 Rule type: eql
+5.5 Severity: medium
+5.6 Risk score: 47
+5.7 MITRE ATT&CK™
+```!
+Tactic:
+    - Name: Persistence (Duy trì)
+    - ID: TA0003 
+    - Reference URL: https://attack.mitre.org/tactics/TA0003/ 
+Technique:
+    - Name: Scheduled Task/Job 
+    - ID: T1053 
+    - Reference URL: https://attack.mitre.org/techniques/T1053/ 
+Sub-technique:
+    - Name: Scheduled Task 
+    - ID: T1053.005 
+    - Reference URL: https://attack.mitre.org/techniques/T1053/005/ 
+Tactic:
+    - Name: Execution ( Thực thi)
+    - ID: TA0002 
+    - Reference URL: https://attack.mitre.org/tactics/TA0002/ 
+Mô tả: Chiến thuật này liên quan đến các kỹ thuật mà kẻ tấn công sử dụng để thực thi mã độc hại trên hệ thống mục tiêu. Mục tiêu là chạy mã của kẻ tấn công trên hệ thống local để thực hiện các hoạt động tiếp theo.
+
+Technique:
+    - Name: Scheduled Task/Job 
+    - ID: T1053 
+    - Reference URL: https://attack.mitre.org/techniques/T1053/ 
+Mô tả: Kỹ thuật này liên quan đến việc kẻ tấn công tạo hoặc sửa đổi Scheduled Task trên hệ thống để thực thi mã độc hại. Điều này có thể được sử dụng cả cho mục đích duy trì và thực thi.
+Sub-technique:
+    - Name: Scheduled Task 
+    - ID: T1053.005 
+    - Reference URL: https://attack.mitre.org/techniques/T1053/005/ 
+Mô tả: Đây là một kỹ thuật cụ thể trong việc sử dụng Scheduled Task trên hệ thống Windows. Kẻ tấn công có thể tạo hoặc sửa đổi Scheduled Task để thực thi các lệnh hoặc script độc hại.
+```
+
+5.8 Các trường hợp Rule Trigger và false positive
+Các trường hợp Rule Trigger:
+1. Tạo tác vụ định kỳ mới với lệnh đáng ngờ:
+    - Sử dụng PowerShell hoặc cmd để tải xuống và thực thi mã từ internet.
+    - Thực thi các lệnh mã hóa hoặc được obfuscated.
+2. Sửa đổi tác vụ định kỳ hiện có:
+    - Thay đổi lệnh thực thi của tác vụ đã tồn tại thành một lệnh đáng ngờ.
+3. Thời gian thực thi bất thường:
+    - Tác vụ được cấu hình để chạy vào thời điểm không bình thường (ví dụ: giữa đêm).
+
+Các trường hợp false positive:
+
+- Các tác vụ định kỳ được tạo bởi quản trị viên hệ thống cho mục đích bảo trì.
+- Nhiều phần mềm sử dụng tác vụ định kỳ để kiểm tra và cài đặt cập nhật.
+- Các công cụ sao lưu thường sử dụng tác vụ định kỳ để thực hiện sao lưu tự động.
+- Phần mềm chống virus có thể tạo tác vụ định kỳ để thực hiện quét hệ thống.
+- Các ứng dụng đồng bộ hóa dữ liệu có thể sử dụng tác vụ định kỳ.
+- Trong môi trường doanh nghiệp, có thể có nhiều script tự động hóa chạy như tác vụ định kỳ.
+
+5.9 Rule query
+![image](https://hackmd.io/_uploads/rJAXBo_vxg.png)
+![image](https://hackmd.io/_uploads/HkJNSjdPxl.png)
+
+Giải thích:
+Đây là một truy vấn quy tắc được sử dụng trong việc giám sát hoặc phát hiện an ninh cho hệ thống, có thể là dùng cho một công cụ hoặc nền tảng cho phép định nghĩa các quy tắc để giám sát các tiến trình và sự kiện. Phân tích:
+1. lọc cơ bản:
+   - process where host.os.type == "windows": Lựa chọn các tiến trình đang chạy trên hệ điều hành Windows.
+   - and event.type == "start": Tập trung vào các sự kiện khởi động tiến trình.
+2. Xác định các tiến trình cụ thể:
+   - process.parent.name : "svchost.exe": Lọc các tiến trình mà tiến trình cha có tên là "svchost.exe".
+   - and process.parent.args : "Schedule": Lọc các tiến trình mà tiến trình cha có đối số là "Schedule".
+3. Xác định các chương trình đáng ngờ:
+   - process.pe.original_file_name in (...): Kiểm tra xem tên tệp gốc của tiến trình có khớp với bất kỳ tên tệp thực thi nghi ngờ nào được liệt kê không. Những tên này bao gồm các chương trình thực thi thường bị lạm dụng như cscript.exe, powershell.exe, cmd.exe, v.v.
+4. Xác định các đường dẫn đáng ngờ:
+   - process.args : (...): Lọc các tiến trình dựa trên đối số của chúng khớp với bất kỳ đường dẫn đáng ngờ nào được chỉ định. Những đường dẫn này bao gồm các thư mục người dùng (C:\Users\*), thư mục hệ thống (C:\Windows\Temp\*), và các vị trí khác có thể nhạy cảm.
+5. Loại trừ:
+   - not (...): Loại trừ một số thực thi đã biết là hợp lệ hoặc được phép có thể gây ra các báo động giả trong quá trình phát hiện.
+     - Loại trừ cmd.exe thực thi các tệp .bat từ các vị trí cụ thể.
+     - Loại trừ cscript.exe chạy calluxxprovider.vbs từ một đường dẫn cụ thể.
+     - Loại trừ powershell.exe với đối số cụ thể được thực thi bởi một ID người dùng cụ thể (S-1-5-18), thường liên quan đến các tiến trình hệ thống.
+     - Loại trừ msiexec.exe được thực thi bởi một ID người dùng cụ thể (S-1-5-18), một lần nữa liên quan đến các tiến trình hệ thống.
+
+5.10 Demo
+**Attack**
+- Tình huống: Kẻ tấn công đã kiểm soát được SHELL máy nạn nhân và đã thực hiện chèn mã độc vào thư mục temp nhưng kẻ tấn công muốn xóa dấu vết mỗi khi user đăng nhập hệ thống
+```shell!
+Start-Process "C:\Windows\System32\svchost.exe" -ArgumentList 'netsvcs -p -s Schedule -File "C:\Users\tien\del_temp.ps1"' -WindowStyle Hidden
+```
+**Detect**
+
+Log của dịch vụ liên quan đến task Schedule
+- Tiến trình PowerShell Đáng ngờ (PID 12668)
+- Command Line: `"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" evchost.exe netsvcs -p -s Schedule -File "C:\Users\tisen\del_temp.ps1"`
+- Tham số bất thường:
+    ```!
+    -s Schedule: Thực thi qua Task Scheduler (cơ chế persistence thường được sử dụng).
+    -File C:\Users\tisen\del_temp.ps1: Tệp PowerShell script đáng ngờ
+    ```
+Tiến trình Cha (PID 1036) - `svchost.exe`
+- Command Line: `C:\WINDOWS\system32\svchost.exe +k netsvcs -p`
+    > Quan hệ cha-con bất thường: svchost.exe (dịch vụ hệ thống) sinh ra powershell.exe → Vi phạm mô hình hoạt động thông thường (cảnh báo "Unusual Parent-Child Relationship").
+
+![image](https://hackmd.io/_uploads/rJ_-ujuDee.png)
+![image](https://hackmd.io/_uploads/BJYWOidvex.png)
+![image](https://hackmd.io/_uploads/HkjZdoODxg.png)
+
+Alert về dâu hiệu bất thường của Schedule Task
+![image](https://hackmd.io/_uploads/ByoXOs_vlx.png)
+
+**Response**
+Ngắn hạn: các tool có thể hổ trợ như:
+1.	Sysinternals Autoruns có thể phát hiện các thay đổi hệ thống như hiển thị các công việc hiện đang được lên lịch.
+2.	Các công cụ như TCPView &; Process Explore có thể giúp xác định các kết nối từ xa cho các dịch vụ hoặc quy trình đáng ngờ.
+Cấu hình các Task Scheduler để thực thi dưới dạng tài khoản được xác thực thay vì hệ thống.
+Vô hiệu hóa task đáng ngờ: 
+    - Sử dụng lệnh: schtasks /query /fo LIST /v để liệt kê tất cả tasks.
+    - Vô hiệu hóa task đáng ngờ: schtasks /change /tn "TÊN_TASK" /disable
+    
+Dài hạn
+Cập nhật hệ thống: Đảm bảo tất cả hệ điều hành và phần mềm được cập nhật với các bản vá bảo mật mới nhất. 
+Triển khai GPO: 
+1. Hạn chế việc tạo Scheduled Tasks cho người dùng không được ủy quyền.
+2. Giới hạn quyền thực thi từ các thư mục người dùng và thư mục Temp.
+3. Implement Application Whitelisting: Chỉ cho phép các ứng dụng đã được phê duyệt chạy trên hệ thống. 
+4. Tăng cường giám sát: 
+    - Cấu hình cảnh báo cho việc tạo hoặc sửa đổi Scheduled Tasks.
+    - Theo dõi chặt chẽ các hoạt động trong thư mục đáng ngờ được liệt kê trong rule.
+
+---
+
+# Lời kết: Đây cũng là kết thúc cho Project xây dựng mô phỏng về ELK stack/SIEM và thực hành tìm hiểu trên SIEM. Cảm ơn mọi người đã đọc.
