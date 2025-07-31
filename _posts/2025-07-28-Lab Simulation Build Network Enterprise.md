@@ -136,21 +136,25 @@ Tiếp tục đặt port3 là lan và cấp ip là 10.10.20.1/255.255.255.0 và 
 
 ![image](/assets/img/NetworkWithEve/Picture20.png)
 
-Đặt một static route như là đường đi cho mạng internal ra ngoài internet với default gateway là của mạng isp và sử dụng trên port1 wan
+Tương tự như port4 cũng là Lan và cấp ip 10.10.10.1/255.255.255.0 và bật dhcp server
 
 ![image](/assets/img/NetworkWithEve/Picture21.png)
 
-Tạo một policy và cài đặt NAT cho vùng User để user có thể truy cập ra internet bên ngoài
+Đặt một static route như là đường đi cho mạng internal ra ngoài internet với default gateway là của mạng isp và sử dụng trên port1 wan
 
 ![image](/assets/img/NetworkWithEve/Picture22.png)
 
-Tạo các vlan 10,20 để các máy thông với nhau 
+Tạo một policy và cài đặt NAT cho vùng User để user có thể truy cập ra internet bên ngoài
 
 ![image](/assets/img/NetworkWithEve/Picture23.png)
 
-Tạo một static route để đi ra mạng internet
+Tạo các vlan 10,20 để các máy thông với nhau 
 
 ![image](/assets/img/NetworkWithEve/Picture24.png)
+
+Tạo một static route để đi ra mạng internet
+
+![image](/assets/img/NetworkWithEve/Picture25.png)
 
 - Tạo các policy bao gồm:
     - Máy tính user kết nối được internet
@@ -158,68 +162,68 @@ Tạo một static route để đi ra mạng internet
     - Nat webserver ra internet để các máy user có thể kết nối tới
     - Vùng internal network có thể kết nối internet
 
-![image](/assets/img/NetworkWithEve/Picture25.png)
+![image](/assets/img/NetworkWithEve/Picture26.png)
 
 ### Step 2: Switch
 
 Tạo đường trunk và chuyển mode cho cổng e0/0 của switch user
 
-![image](/assets/img/NetworkWithEve/Picture26.png)
+![image](/assets/img/NetworkWithEve/Picture27.png)
 
 Config cổng e0/1 cho phép truy cập vlan10
 
-![image](/assets/img/NetworkWithEve/Picture27.png)
+![image](/assets/img/NetworkWithEve/Picture28.png)
 
 Tương tự như vậy  config bên vlan 20. Tạo đường trunk cho vlan 10,20 và chuyển mode trunk
 
-![image](/assets/img/NetworkWithEve/Picture28.png)
+![image](/assets/img/NetworkWithEve/Picture29.png)
 
 Chuyển cổng e0/1 sang mode access và cho truy cập vlan 20
 
-![image](/assets/img/NetworkWithEve/Picture29.png)
+![image](/assets/img/NetworkWithEve/Picture30.png)
 
 ### Step 3: Máy User
 
 Kiểm tra trong máy user xem đã nhận ip và truy cập internet được chưa
 
-![image](/assets/img/NetworkWithEve/Picture30.png)
+![image](/assets/img/NetworkWithEve/Picture31.png)
+![image](/assets/img/NetworkWithEve/Picture32.png)
 
 ==> Đã thấy truy cập được internet
 
 Kiểm tra xem có nat thành công web server bằng cách lấy máy user truy cập vào web 
 
-![image](/assets/img/NetworkWithEve/Picture31.png)
+![image](/assets/img/NetworkWithEve/Picture33.png)
 
 ==> Kết nối thành công
 
 2 vùng vlan 10,20 đã thông nhau
 
-![image](/assets/img/NetworkWithEve/Picture32.png)
+![image](/assets/img/NetworkWithEve/Picture34.png)
 
 
 ### Step 4: Máy windows server
 
 Trên windows server vẫn có thể truy cập ra internet bên ngoài
 
-![image](/assets/img/NetworkWithEve/Picture33.png)
+![image](/assets/img/NetworkWithEve/Picture35.png)
 
 Trên máy windows server tạo 2 tài khoản người dùng cho 2 máy user1 và user2
 
-![image](/assets/img/NetworkWithEve/Picture34.png)
+![image](/assets/img/NetworkWithEve/Picture36.png)
 
 Đăng nhập trên máy user1: Password bắt buộc đổi khi lần đầu đăng nhập
 
-![image](/assets/img/NetworkWithEve/Picture35.png)
-
-![image](/assets/img/NetworkWithEve/Picture36.png)
+![image](/assets/img/NetworkWithEve/Picture37.png)
+![image](/assets/img/NetworkWithEve/Picture38.png)
 
 Đăng nhập vào tài khoản domain thành công và ở windows server có thêm vào một máy tính
 
-![image](/assets/img/NetworkWithEve/Picture37.png)
+![image](/assets/img/NetworkWithEve/Picture39.png)
 
 Tương tự bên máy user2 cũng join vào domain
 
-![image](/assets/img/NetworkWithEve/Picture38.png)
+![image](/assets/img/NetworkWithEve/Picture40.png)
 
 
 ## Lời kết
